@@ -1,5 +1,8 @@
 use crate::configuration::from_command_line;
+extern crate nalgebra_glm as glm;
 
+mod colour;
+pub use colour::*;
 mod configuration;
 
 fn main() {

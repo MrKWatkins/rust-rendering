@@ -8,6 +8,14 @@ pub struct Configuration {
     /// The output file.
     #[structopt(parse(from_os_str), short = "o", long = "output")]
     pub output: PathBuf,
+
+    /// The width of the output image.
+    #[structopt(short = "w", long = "width", default_value = "1920")]
+    pub width: u32,
+
+    /// The height of the output image.
+    #[structopt(short = "h", long = "height", default_value = "1080")]
+    pub height: u32,
 }
 
 pub fn from_command_line() -> Result<Configuration> {
