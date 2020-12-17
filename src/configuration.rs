@@ -39,5 +39,6 @@ fn validate(configuration: &Configuration) -> Result<()> {
             reason: "path corresponds to a directory".to_string(),
         });
     }
+
     return Ok(());
 }

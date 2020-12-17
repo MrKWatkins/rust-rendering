@@ -4,9 +4,9 @@ pub type Colour = glm::DVec3;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Rgb {
-    r: u8,
-    g: u8,
-    b: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
 }
 
 impl Rgb {
@@ -32,6 +32,10 @@ impl Rgb {
 
     pub fn to_colour(&self) -> Colour {
         return Colour::new(self.r as f64 / 255.0, self.g as f64 / 255.0, self.b as f64 / 255.0);
+    }
+
+    pub fn to_u8_array(&self) -> [u8; 3] {
+        return [self.r, self.g, self.b];
     }
 }
 
@@ -113,5 +117,12 @@ mod tests {
         let rgb = Rgb::new(0x12, 0x78, 0xde);
 
         assert_eq!(rgb.to_string(), "0x1278de");
+    }
+
+    #[test]
+    fn to_u8_array() {
+        let rgb = Rgb::new(0x12, 0x78, 0xde);
+
+        assert_eq!(rgb.to_u8_array(), [0x12, 0x78, 0xde]);
     }
 }
