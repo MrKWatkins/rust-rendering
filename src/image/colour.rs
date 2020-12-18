@@ -3,13 +3,13 @@ use std::fmt;
 
 #[derive(Debug, Default, Clone)]
 pub struct Colour {
-    pub r: f64,
-    pub g: f64,
-    pub b: f64,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
 }
 
 impl Colour {
-    pub fn new(r: f64, g: f64, b: f64) -> Colour {
+    pub fn new(r: f32, g: f32, b: f32) -> Colour {
         return Colour { r, g, b };
     }
 
@@ -46,7 +46,7 @@ mod tests {
     case(2.0, 1.1, 100.0, 0xff, 0xff, 0xff),
     case(0.25, 0.5, 0.75, 0x3f, 0x7f, 0xbf)
     )]
-    fn to_rgb(x: f64, y: f64, z: f64, expected_r: u8, expected_g: u8, expected_b: u8) {
+    fn to_rgb(x: f32, y: f32, z: f32, expected_r: u8, expected_g: u8, expected_b: u8) {
         let colour = Colour::new(x, y, z);
         let rgb = colour.to_rgb();
 
