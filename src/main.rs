@@ -6,6 +6,8 @@ use std::time::Instant;
 mod configuration;
 pub mod geometry;
 pub mod image;
+pub mod material;
+pub mod scene;
 
 fn main() {
     let configuration = from_command_line().unwrap();

@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 image = "*"
 nalgebra = "*"
+ncollide3d = "*"
 snafu = "*"
 structopt = "*"
 
