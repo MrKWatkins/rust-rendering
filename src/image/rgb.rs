@@ -1,6 +1,5 @@
+use crate::image::Colour;
 use std::fmt;
-
-pub type Colour = glm::DVec3;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Rgb {
@@ -19,14 +18,6 @@ impl Rgb {
             r: ((hex >> 16) & 0xff) as u8,
             g: ((hex >> 8) & 0xff) as u8,
             b: (hex & 0xff) as u8,
-        };
-    }
-
-    pub fn from_colour(colour: &Colour) -> Rgb {
-        return Rgb {
-            r: (colour.x.min(1.0).max(0.0) * 255.0) as u8,
-            g: (colour.y.min(1.0).max(0.0) * 255.0) as u8,
-            b: (colour.z.min(1.0).max(0.0) * 255.0) as u8,
         };
     }
 
@@ -71,28 +62,6 @@ mod tests {
     }
 
     #[rstest(
-        x,
-        y,
-        z,
-        expected_r,
-        expected_g,
-        expected_b,
-        case(0.0, 0.0, 0.0, 0x00, 0x00, 0x00),
-        case(1.0, 1.0, 1.0, 0xff, 0xff, 0xff),
-        case(-1.0, -0.1, -50.0, 0x00, 0x00, 0x00),
-        case(2.0, 1.1, 100.0, 0xff, 0xff, 0xff),
-        case(0.25, 0.5, 0.75, 0x3f, 0x7f, 0xbf)
-    )]
-    fn from_colour(x: f64, y: f64, z: f64, expected_r: u8, expected_g: u8, expected_b: u8) {
-        let colour = Colour::new(x, y, z);
-        let rgb = Rgb::from_colour(&colour);
-
-        assert_eq!(rgb.r, expected_r);
-        assert_eq!(rgb.g, expected_g);
-        assert_eq!(rgb.b, expected_b);
-    }
-
-    #[rstest(
         r,
         g,
         b,
@@ -107,9 +76,9 @@ mod tests {
         let rgb = Rgb { r, g, b };
         let colour = rgb.to_colour();
 
-        assert_abs_diff_eq!(colour.x, expected_x, epsilon = 0.01);
-        assert_abs_diff_eq!(colour.y, expected_y, epsilon = 0.01);
-        assert_abs_diff_eq!(colour.z, expected_z, epsilon = 0.01);
+        assert_abs_diff_eq!(colour.r, expected_x, epsilon = 0.01);
+        assert_abs_diff_eq!(colour.g, expected_y, epsilon = 0.01);
+        assert_abs_diff_eq!(colour.b, expected_z, epsilon = 0.01);
     }
 
     #[test]

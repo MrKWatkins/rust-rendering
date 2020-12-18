@@ -1,41 +1,8 @@
-use crate::colour::{Colour, Rgb};
+use crate::image::{Error, Image, Rgb};
 use image::codecs::png::PngEncoder;
 use image::ColorType;
-use snafu::Snafu;
 use std::fs::File;
-use std::path::{Path, PathBuf};
-
-#[derive(Debug, Snafu)]
-pub enum Error {
-    #[snafu(display("Unable to save image to {:?}; {}.", path, reason))]
-    CannotSaveImage { path: PathBuf, reason: String },
-}
-
-pub type Result<T, E = Error> = std::result::Result<T, E>;
-
-pub struct Image {
-    pub width: u32,
-    pub height: u32,
-    pixels: Vec<Colour>,
-}
-
-impl Image {
-    pub fn new(width: u32, height: u32) -> Image {
-        return Image {
-            width,
-            height,
-            pixels: vec![Colour::new(0.0, 0.0, 0.0); (width * height) as usize],
-        };
-    }
-
-    pub fn to_rgb_image(&self) -> RgbImage {
-        return RgbImage {
-            width: self.width,
-            height: self.height,
-            pixels: self.pixels.iter().map(|colour| Rgb::from_colour(colour)).collect(),
-        };
-    }
-}
+use std::path::Path;
 
 pub struct RgbImage {
     pub width: u32,
@@ -52,12 +19,16 @@ impl RgbImage {
         };
     }
 
-    pub fn to_image(&self) -> Image {
-        return Image {
-            width: self.width,
-            height: self.height,
-            pixels: self.pixels.iter().map(|rgb| rgb.to_colour()).collect(),
+    pub fn from_rgb_pixels(width: u32, height: u32, pixels: &mut dyn Iterator<Item = Rgb>) -> RgbImage {
+        return RgbImage {
+            width,
+            height,
+            pixels: pixels.collect(),
         };
+    }
+
+    pub fn to_image(&self) -> Image {
+        return Image::from_colour_pixels(self.width, self.height, &mut self.pixels.iter().map(|rgb| rgb.to_colour()));
     }
 
     pub fn save(&self, path: &Path) -> Result<(), Error> {
@@ -71,7 +42,7 @@ impl RgbImage {
             }
         }
 
-        let mut file;
+        let file;
         match File::create(path) {
             Ok(f) => file = f,
             Err(e) => {

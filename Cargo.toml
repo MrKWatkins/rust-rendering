@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 image = "*"
-nalgebra-glm = "*"
+nalgebra = "*"
 snafu = "*"
 structopt = "*"
 

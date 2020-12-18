@@ -1,12 +1,11 @@
 use crate::configuration::from_command_line;
 use crate::image::Image;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
-extern crate nalgebra_glm as glm;
-
-mod colour;
+// Some modules declared as pub to suppress dead code warnings.
 mod configuration;
-mod image;
+pub mod geometry;
+pub mod image;
 
 fn main() {
     let configuration = from_command_line().unwrap();
