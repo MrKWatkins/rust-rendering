@@ -26,4 +26,8 @@ impl Image {
     pub fn to_rgb_image(&self) -> RgbImage {
         return RgbImage::from_rgb_pixels(self.width, self.height, &mut self.pixels.iter().map(|colour| colour.to_rgb()));
     }
+
+    pub fn set_pixel(&mut self, x: u32, y: u32, colour: Colour) {
+        self.pixels[(x + y * self.width) as usize] = colour;
+    }
 }

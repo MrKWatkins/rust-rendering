@@ -1,15 +1,16 @@
 use crate::image::Rgb;
+use crate::maths::Scalar;
 use std::fmt;
 
 #[derive(Debug, Default, Clone)]
 pub struct Colour {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
+    pub r: Scalar,
+    pub g: Scalar,
+    pub b: Scalar,
 }
 
 impl Colour {
-    pub fn new(r: f32, g: f32, b: f32) -> Colour {
+    pub fn new(r: Scalar, g: Scalar, b: Scalar) -> Colour {
         return Colour { r, g, b };
     }
 
@@ -19,6 +20,10 @@ impl Colour {
             g: (self.g.min(1.0).max(0.0) * 255.0) as u8,
             b: (self.b.min(1.0).max(0.0) * 255.0) as u8,
         };
+    }
+
+    pub fn black() -> Colour {
+        return Colour::new(0.0, 0.0, 0.0);
     }
 }
 
@@ -46,7 +51,7 @@ mod tests {
     case(2.0, 1.1, 100.0, 0xff, 0xff, 0xff),
     case(0.25, 0.5, 0.75, 0x3f, 0x7f, 0xbf)
     )]
-    fn to_rgb(x: f32, y: f32, z: f32, expected_r: u8, expected_g: u8, expected_b: u8) {
+    fn to_rgb(x: Scalar, y: Scalar, z: Scalar, expected_r: u8, expected_g: u8, expected_b: u8) {
         let colour = Colour::new(x, y, z);
         let rgb = colour.to_rgb();
 

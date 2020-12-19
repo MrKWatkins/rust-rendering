@@ -1,4 +1,5 @@
 use crate::image::Colour;
+use crate::maths::Scalar;
 use std::fmt;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -22,7 +23,7 @@ impl Rgb {
     }
 
     pub fn to_colour(&self) -> Colour {
-        return Colour::new(self.r as f32 / 255.0, self.g as f32 / 255.0, self.b as f32 / 255.0);
+        return Colour::new(self.r as Scalar / 255.0, self.g as Scalar / 255.0, self.b as Scalar / 255.0);
     }
 
     pub fn to_u8_array(&self) -> [u8; 3] {
@@ -72,7 +73,7 @@ mod tests {
         case(0xff, 0xff, 0xff, 1.0, 1.0, 1.0),
         case(0x3f, 0x7f, 0xbf, 0.25, 0.5, 0.75)
     )]
-    fn to_colour(r: u8, g: u8, b: u8, expected_x: f32, expected_y: f32, expected_z: f32) {
+    fn to_colour(r: u8, g: u8, b: u8, expected_x: Scalar, expected_y: Scalar, expected_z: Scalar) {
         let rgb = Rgb { r, g, b };
         let colour = rgb.to_colour();
 

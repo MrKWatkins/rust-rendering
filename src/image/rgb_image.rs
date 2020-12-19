@@ -33,9 +33,9 @@ impl RgbImage {
 
     pub fn save(&self, path: &Path) -> Result<(), Error> {
         let mut buffer: Vec<u8> = Vec::with_capacity((self.width * self.height * 3) as usize);
-        for x in 0..self.width as usize {
-            for y in 0..self.height as usize {
-                let color = &self.pixels[x * y];
+        for y in 0..self.height as usize {
+            for x in 0..self.width as usize {
+                let color = &self.pixels[x + y * self.width as usize];
                 buffer.push(color.r);
                 buffer.push(color.g);
                 buffer.push(color.b);
