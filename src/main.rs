@@ -37,7 +37,9 @@ fn main() {
 fn build_scene() -> Scene {
     let mut scene = Scene::new();
 
-    scene.add(Object::sphere(&Point::new(0.0, 0.0, 1.0), 0.1, Material::matte(Colour::new(0.0, 1.0, 0.0))));
+    scene.add(Object::sphere(Point::new(-1.5, 0.0, 5.0), 0.5, Material::matte(Colour::new(1.0, 0.0, 0.0))));
+    scene.add(Object::sphere(Point::new(0.0, 0.0, 5.0), 0.5, Material::matte(Colour::new(0.0, 1.0, 0.0))));
+    scene.add(Object::sphere(Point::new(1.5, 0.0, 5.0), 0.5, Material::matte(Colour::new(0.0, 0.0, 1.0))));
 
     return scene;
 }

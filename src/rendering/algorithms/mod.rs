@@ -5,9 +5,9 @@ mod gradient;
 pub use self::gradient::Gradient;
 
 use crate::image::Colour;
-use crate::maths::Scalar;
+use crate::rendering::ScreenSpaceCoords;
 use crate::scene::Scene;
 
 pub trait Algorithm {
-    fn render_point(&self, x: Scalar, y: Scalar, scene: &Scene) -> Colour;
+    fn render_point(&self, scene: &Scene, coordinates: &ScreenSpaceCoords) -> Colour;
 }
