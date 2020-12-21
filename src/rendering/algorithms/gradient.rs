@@ -1,7 +1,6 @@
 use crate::image::Colour;
-use crate::maths::Scalar;
+use crate::maths::{Coordinates, Scalar};
 use crate::rendering::algorithms::Algorithm;
-use crate::rendering::ScreenSpaceCoords;
 use crate::scene::Scene;
 
 /// Renders a flat gradient. Useful for testing image file output is correct.
@@ -18,7 +17,7 @@ impl Gradient {
 }
 
 impl Algorithm for Gradient {
-    fn render_point(&self, _: &Scene, coordinates: &ScreenSpaceCoords) -> Colour {
+    fn render_point(&self, _: &Scene, coordinates: &Coordinates) -> Colour {
         let adjusted_x = coordinates.x + 0.5;
         let adjusted_y = coordinates.y + 0.5;
         let scale = adjusted_x * adjusted_y;

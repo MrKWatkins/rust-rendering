@@ -3,7 +3,7 @@ use crate::image::Colour;
 use crate::material::Material;
 use crate::maths::Point;
 use crate::rendering::algorithms::RayTracing;
-use crate::rendering::render;
+use crate::rendering::{render, SubPixelSampling};
 use crate::scene::{Object, Scene};
 use std::time::Instant;
 
@@ -24,7 +24,7 @@ fn main() {
     let algorithm = RayTracing::new();
     let scene = build_scene();
 
-    let image = time_function("render", || render(&algorithm, &configuration, &scene));
+    let image = time_function("render", || render(&algorithm, &configuration, &scene, SubPixelSampling::Square(2)));
 
     let rgb = time_function("to_rgb_image", || image.to_rgb_image());
 

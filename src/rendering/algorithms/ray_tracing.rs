@@ -1,7 +1,6 @@
 use crate::image::Colour;
-use crate::maths::{Ray, Scalar};
+use crate::maths::{Coordinates, Ray, Scalar};
 use crate::rendering::algorithms::Algorithm;
-use crate::rendering::ScreenSpaceCoords;
 use crate::scene::Scene;
 use nalgebra::Matrix;
 use ncollide3d::query::RayCast;
@@ -17,7 +16,7 @@ impl RayTracing {
 }
 
 impl Algorithm for RayTracing {
-    fn render_point(&self, scene: &Scene, coordinates: &ScreenSpaceCoords) -> Colour {
+    fn render_point(&self, scene: &Scene, coordinates: &Coordinates) -> Colour {
         let eye = scene.camera.to_world_space(coordinates);
 
         let ray = Ray::new(scene.camera.position, Matrix::normalize(&(eye - scene.camera.position)));

@@ -14,6 +14,10 @@ impl Colour {
         return Colour { r, g, b };
     }
 
+    pub fn average(colours: &[Colour]) -> Colour {
+        return colours.iter().sum::<Colour>() / colours.len() as f32;
+    }
+
     pub fn to_rgb(&self) -> Rgb {
         return Rgb {
             r: (self.r.min(1.0).max(0.0) * 255.0) as u8,
@@ -27,6 +31,54 @@ impl Colour {
     }
 }
 
+impl std::ops::Add<&Colour> for Colour {
+    type Output = Colour;
+
+    fn add(self, other: &Colour) -> Colour {
+        Colour {
+            r: self.r + other.r,
+            g: self.g + other.g,
+            b: self.b + other.b,
+        }
+    }
+}
+
+impl std::ops::Add<Colour> for Colour {
+    type Output = Colour;
+
+    fn add(self, other: Colour) -> Colour {
+        Colour {
+            r: self.r + other.r,
+            g: self.g + other.g,
+            b: self.b + other.b,
+        }
+    }
+}
+
+impl std::iter::Sum for Colour {
+    fn sum<I: Iterator<Item = Colour>>(iter: I) -> Colour {
+        return iter.fold(Colour::black(), |x, y| x + y);
+    }
+}
+
+impl<'a> std::iter::Sum<&'a Colour> for Colour {
+    fn sum<I: Iterator<Item = &'a Colour>>(iter: I) -> Colour {
+        return iter.fold(Colour::black(), |x, y| x + y);
+    }
+}
+
+impl std::ops::Div<Scalar> for Colour {
+    type Output = Colour;
+
+    fn div(self, divisor: Scalar) -> Colour {
+        Colour {
+            r: self.r / divisor,
+            g: self.g / divisor,
+            b: self.b / divisor,
+        }
+    }
+}
+
 impl fmt::Display for Colour {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         return write!(f, "0x{:02x?}{:02x?}{:02x?}", self.r, self.g, self.b);
@@ -36,6 +88,7 @@ impl fmt::Display for Colour {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
     use rstest::rstest;
 
     #[rstest(
@@ -58,5 +111,56 @@ mod tests {
         assert_eq!(rgb.r, expected_r);
         assert_eq!(rgb.g, expected_g);
         assert_eq!(rgb.b, expected_b);
+    }
+
+    #[test]
+    fn add_by_value() {
+        let actual = Colour::new(0.1, 0.2, 1.5) + Colour::new(0.5, 0.1, -0.3);
+        let expected = Colour::new(0.6, 0.3, 1.2);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn add_by_reference() {
+        let actual = Colour::new(0.1, 0.2, 1.5) + &Colour::new(0.5, 0.1, -0.3);
+        let expected = Colour::new(0.6, 0.3, 1.2);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn sum_by_value() {
+        let colours = vec![Colour::new(0.1, 0.2, 1.5), Colour::new(0.5, 0.1, -0.3), Colour::new(0.3, 0.2, 0.3)];
+        let actual: Colour = colours.into_iter().sum();
+        let expected = Colour::new(0.9, 0.5, 1.5);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn sum_by_reference() {
+        let colours = vec![Colour::new(0.1, 0.2, 1.5), Colour::new(0.5, 0.1, -0.3), Colour::new(0.3, 0.2, 0.3)];
+        let actual: Colour = colours.iter().sum();
+        let expected = Colour::new(0.9, 0.5, 1.5);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn div() {
+        let actual = Colour::new(0.1, 0.2, 1.5) / 10.0;
+        let expected = Colour::new(0.01, 0.02, 0.15);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn average() {
+        let colours = vec![Colour::new(0.1, 0.2, 1.5), Colour::new(0.5, 0.3, -0.3), Colour::new(0.3, 0.1, 0.3)];
+        let actual: Colour = Colour::average(&colours);
+        let expected = Colour::new(0.3, 0.2, 0.5);
+        assert_eq(actual, expected);
+    }
+
+    fn assert_eq(actual: Colour, expected: Colour) {
+        assert_abs_diff_eq!(actual.r, expected.r, epsilon = 0.01);
+        assert_abs_diff_eq!(actual.g, expected.g, epsilon = 0.01);
+        assert_abs_diff_eq!(actual.b, expected.b, epsilon = 0.01);
     }
 }

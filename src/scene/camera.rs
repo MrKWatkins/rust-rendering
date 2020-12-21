@@ -1,5 +1,4 @@
-use crate::maths::{Isometry, Perspective, Point, Scalar, TransformationMatrix, Vector};
-use crate::rendering::ScreenSpaceCoords;
+use crate::maths::*;
 use nalgebra::Point4;
 
 pub struct Camera {
@@ -18,7 +17,7 @@ impl Camera {
         return Camera { position, camera_to_world };
     }
 
-    pub fn to_world_space(&self, camera_space: &ScreenSpaceCoords) -> Point {
+    pub fn to_world_space(&self, camera_space: &Coordinates) -> Point {
         let homogeneous = self.camera_to_world * Point4::new(camera_space.x, camera_space.y, -1.0, 1.0);
         return Point::from_homogeneous(homogeneous.coords).unwrap();
     }
