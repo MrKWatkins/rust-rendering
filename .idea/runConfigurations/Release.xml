@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Release" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --release -- --output $USER_HOME$/rust-render.png" />
+    <option name="command" value="run --release -- --scene $PROJECT_DIR$/scenes/three_balls.json --output $USER_HOME$/rust-render.png" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="allFeatures" value="false" />

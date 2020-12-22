@@ -10,6 +10,8 @@ pub struct Object {
     pub material: Material,
 
     pub transformation: Isometry,
+
+    _private: (),
 }
 
 impl Object {
@@ -19,10 +21,11 @@ impl Object {
             position,
             material,
             transformation: Isometry::translation(position.x, position.y, position.z),
+            _private: (),
         }
     }
 
-    pub fn sphere(centre: Point, radius: Scalar, material: Material) -> Object {
+    pub fn new_sphere(centre: Point, radius: Scalar, material: Material) -> Object {
         return Object::new(Sphere::new(radius), centre, material);
     }
 }

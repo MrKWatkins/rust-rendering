@@ -6,6 +6,10 @@ use structopt::StructOpt;
 #[structopt(name = "rust-rendering")]
 pub struct Configuration {
     /// The output file.
+    #[structopt(parse(from_os_str), short = "s", long = "scene")]
+    pub scene: PathBuf,
+
+    /// The output file.
     #[structopt(parse(from_os_str), short = "o", long = "output")]
     pub output: PathBuf,
 

@@ -1,5 +1,4 @@
 use crate::image::Colour;
-use crate::maths::*;
 use crate::scene::{Camera, Object};
 
 pub struct Scene {
@@ -13,14 +12,13 @@ impl Scene {
     pub fn new() -> Scene {
         return Scene {
             background_colour: Colour::black(),
-            //camera: Camera::default(),
-            camera: Camera::new(Point::new(0.0, 0.0, -1.0), &Point::new(0.0, 0.0, 0.0), &Vector::y(), 30.0),
+            camera: Camera::default(),
             objects: vec![],
             _private: (),
         };
     }
 
-    pub fn add(&mut self, object: Object) {
+    pub fn add_object(&mut self, object: Object) {
         self.objects.push(object);
     }
 }

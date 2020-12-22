@@ -1,10 +1,7 @@
 use crate::configuration::from_command_line;
-use crate::image::Colour;
-use crate::material::Material;
-use crate::maths::Point;
 use crate::rendering::algorithms::RayTracing;
 use crate::rendering::{render, SubPixelSampling};
-use crate::scene::{Object, Scene};
+use crate::scene::io::json::load;
 use std::time::Instant;
 
 // Some modules declared as pub to suppress dead code warnings.
@@ -18,11 +15,19 @@ pub mod scene;
 fn main() {
     let configuration = from_command_line().unwrap();
 
+    println!("Scene: {:?}", configuration.scene);
     println!("Output file: {:?}", configuration.output);
     println!("Image size: {}x{}", configuration.width, configuration.height);
 
+    let scene = match load(&configuration.scene) {
+        Ok(t) => t,
+        Err(e) => {
+            println!("Could not load scene{:?}: {}", configuration.scene, e.to_string());
+            return;
+        }
+    };
+
     let algorithm = RayTracing::new();
-    let scene = build_scene();
 
     let image = time_function("render", || render(&algorithm, &configuration, &scene, SubPixelSampling::Square(2)));
 
@@ -30,18 +35,8 @@ fn main() {
 
     time_function("save", || {
         rgb.save(&configuration.output)
-            .unwrap_or_else(|e| println!("Unexpected error: {}", e.to_string()))
+            .unwrap_or_else(|e| println!("Could not save image: {}", e.to_string()))
     });
-}
-
-fn build_scene() -> Scene {
-    let mut scene = Scene::new();
-
-    scene.add(Object::sphere(Point::new(-1.5, 0.0, 5.0), 0.5, Material::matte(Colour::new(1.0, 0.0, 0.0))));
-    scene.add(Object::sphere(Point::new(0.0, 0.0, 5.0), 0.5, Material::matte(Colour::new(0.0, 1.0, 0.0))));
-    scene.add(Object::sphere(Point::new(1.5, 0.0, 5.0), 0.5, Material::matte(Colour::new(0.0, 0.0, 1.0))));
-
-    return scene;
 }
 
 fn time_function<TResult>(name: &str, function: impl Fn() -> TResult) -> TResult {
