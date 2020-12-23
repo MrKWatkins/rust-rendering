@@ -1,10 +1,17 @@
 {
+  "ambient_light": [0.01, 0.01, 0.01],
   "camera": {
     "position": [0.0, 0.0,-1.0],
     "looking_at": [0.0, 0.0, 0.0],
     "up": [0.0, 1.0, 0.0],
     "field_of_view_degrees": 30.0
   },
+  "lights": [
+    {
+      "position": [0.0, 3.0, 5.0],
+      "colour": [1.0, 1.0, 1.0]
+    }
+  ],
   "objects": [
     {
       "sphere": {

@@ -4,6 +4,9 @@ pub use self::json_camera::JsonCamera;
 mod json_colour;
 pub use self::json_colour::*;
 
+mod json_light;
+pub use self::json_light::*;
+
 mod json_material;
 pub use self::json_material::*;
 

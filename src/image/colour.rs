@@ -1,6 +1,7 @@
 use crate::image::Rgb;
 use crate::maths::Scalar;
 use std::fmt;
+use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, Default, Clone)]
 pub struct Colour {
@@ -19,10 +20,19 @@ impl Colour {
     }
 
     pub fn to_rgb(&self) -> Rgb {
+        let rgb = self.clamp() * 255.0;
         return Rgb {
-            r: (self.r.min(1.0).max(0.0) * 255.0) as u8,
-            g: (self.g.min(1.0).max(0.0) * 255.0) as u8,
-            b: (self.b.min(1.0).max(0.0) * 255.0) as u8,
+            r: rgb.r as u8,
+            g: rgb.g as u8,
+            b: rgb.b as u8,
+        };
+    }
+
+    pub fn clamp(&self) -> Colour {
+        return Colour {
+            r: self.r.min(1.0).max(0.0),
+            g: self.g.min(1.0).max(0.0),
+            b: self.b.min(1.0).max(0.0),
         };
     }
 
@@ -31,29 +41,131 @@ impl Colour {
     }
 }
 
-impl std::ops::Add<&Colour> for Colour {
-    type Output = Colour;
+// TODO: Clamp on operators.
+macro_rules! colour_operator {
+    ($trait:ident, $method:ident, $operator:tt) => {
+        impl $trait<Colour> for Colour {
+            type Output = Colour;
 
-    fn add(self, other: &Colour) -> Colour {
-        Colour {
-            r: self.r + other.r,
-            g: self.g + other.g,
-            b: self.b + other.b,
+            #[inline]
+            fn $method(self, other: Colour) -> Colour {
+                return Colour {
+                    r: self.r $operator other.r,
+                    g: self.g $operator other.g,
+                    b: self.b $operator other.b,
+                };
+            }
         }
-    }
+
+        impl $trait<&Colour> for Colour {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: &Colour) -> Colour {
+                return Colour {
+                    r: self.r $operator other.r,
+                    g: self.g $operator other.g,
+                    b: self.b $operator other.b,
+                };
+            }
+        }
+
+        impl $trait<Colour> for &Colour {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: Colour) -> Colour {
+                return Colour {
+                    r: self.r $operator other.r,
+                    g: self.g $operator other.g,
+                    b: self.b $operator other.b,
+                };
+            }
+        }
+
+        impl $trait<&Colour> for &Colour {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: &Colour) -> Colour {
+                return Colour {
+                    r: self.r $operator other.r,
+                    g: self.g $operator other.g,
+                    b: self.b $operator other.b,
+                };
+            }
+        }
+    };
 }
 
-impl std::ops::Add<Colour> for Colour {
-    type Output = Colour;
+colour_operator! { Add, add, + }
+colour_operator! { Sub, sub, - }
+colour_operator! { Mul, mul, * }
 
-    fn add(self, other: Colour) -> Colour {
-        Colour {
-            r: self.r + other.r,
-            g: self.g + other.g,
-            b: self.b + other.b,
+macro_rules! colour_scalar_operator {
+    ($trait:ident, $method:ident, $operator:tt) => {
+        impl $trait<Scalar> for Colour {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: Scalar) -> Colour {
+                return Colour {
+                    r: self.r $operator other,
+                    g: self.g $operator other,
+                    b: self.b $operator other,
+                };
+            }
         }
-    }
+
+        impl $trait<Scalar> for &Colour {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: Scalar) -> Colour {
+                return Colour {
+                    r: self.r $operator other,
+                    g: self.g $operator other,
+                    b: self.b $operator other,
+                };
+            }
+        }
+    };
 }
+
+colour_scalar_operator! { Mul, mul, * }
+colour_scalar_operator! { Div, div, / }
+
+macro_rules! scalar_colour_operator {
+    ($trait:ident, $method:ident, $operator:tt) => {
+        impl $trait<Colour> for Scalar {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: Colour) -> Colour {
+                return Colour {
+                    r: other.r $operator self,
+                    g: other.g $operator self,
+                    b: other.b $operator self,
+                };
+            }
+        }
+
+        impl $trait<&Colour> for Scalar {
+            type Output = Colour;
+
+            #[inline]
+            fn $method(self, other: &Colour) -> Colour {
+                return Colour {
+                    r: other.r $operator self,
+                    g: other.g $operator self,
+                    b: other.b $operator self,
+                };
+            }
+        }
+    };
+}
+
+scalar_colour_operator! { Mul, mul, * }
 
 impl std::iter::Sum for Colour {
     fn sum<I: Iterator<Item = Colour>>(iter: I) -> Colour {
@@ -64,18 +176,6 @@ impl std::iter::Sum for Colour {
 impl<'a> std::iter::Sum<&'a Colour> for Colour {
     fn sum<I: Iterator<Item = &'a Colour>>(iter: I) -> Colour {
         return iter.fold(Colour::black(), |x, y| x + y);
-    }
-}
-
-impl std::ops::Div<Scalar> for Colour {
-    type Output = Colour;
-
-    fn div(self, divisor: Scalar) -> Colour {
-        Colour {
-            r: self.r / divisor,
-            g: self.g / divisor,
-            b: self.b / divisor,
-        }
     }
 }
 
@@ -114,16 +214,44 @@ mod tests {
     }
 
     #[test]
-    fn add_by_value() {
+    fn add_value_value() {
         let actual = Colour::new(0.1, 0.2, 1.5) + Colour::new(0.5, 0.1, -0.3);
         let expected = Colour::new(0.6, 0.3, 1.2);
         assert_eq(actual, expected);
     }
 
     #[test]
-    fn add_by_reference() {
+    fn add_value_reference() {
         let actual = Colour::new(0.1, 0.2, 1.5) + &Colour::new(0.5, 0.1, -0.3);
         let expected = Colour::new(0.6, 0.3, 1.2);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn add_reference_value() {
+        let actual = &Colour::new(0.1, 0.2, 1.5) + Colour::new(0.5, 0.1, -0.3);
+        let expected = Colour::new(0.6, 0.3, 1.2);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn add_reference_reference() {
+        let actual = &Colour::new(0.1, 0.2, 1.5) + &Colour::new(0.5, 0.1, -0.3);
+        let expected = Colour::new(0.6, 0.3, 1.2);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn mul_value_value() {
+        let actual = Colour::new(0.1, 0.2, 1.5) * Colour::new(0.5, 1.0, 0.0);
+        let expected = Colour::new(0.05, 0.2, 0.0);
+        assert_eq(actual, expected);
+    }
+
+    #[test]
+    fn sub_value_value() {
+        let actual = Colour::new(0.1, 1.0, 1.5) - Colour::new(0.5, 0.2, 0.0);
+        let expected = Colour::new(-0.4, 0.8, 1.5);
         assert_eq(actual, expected);
     }
 

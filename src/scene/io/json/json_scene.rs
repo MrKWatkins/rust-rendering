@@ -1,4 +1,4 @@
-use crate::scene::io::json::{JsonCamera, JsonObject};
+use crate::scene::io::json::{JsonCamera, JsonColour, JsonLight, JsonObject};
 use crate::scene::Scene;
 use serde::Deserialize;
 use std::error::Error;
@@ -8,8 +8,11 @@ use std::path::Path;
 
 #[derive(Deserialize)]
 pub struct JsonScene {
+    pub ambient_light: Option<JsonColour>,
+    pub background_colour: Option<JsonColour>,
     pub camera: Option<JsonCamera>,
     pub objects: Vec<JsonObject>,
+    pub lights: Vec<JsonLight>,
 }
 
 impl JsonScene {
@@ -25,8 +28,20 @@ impl JsonScene {
     pub fn to_scene(&self) -> Scene {
         let mut scene = Scene::new();
 
+        if let Some(ambient_light) = &self.ambient_light {
+            scene.ambient_light = ambient_light.to_colour();
+        }
+
+        if let Some(background_colour) = &self.background_colour {
+            scene.background_colour = background_colour.to_colour();
+        }
+
         if let Some(camera) = &self.camera {
             scene.camera = camera.to_camera();
+        }
+
+        for light in &self.lights {
+            scene.add_light(light.to_light());
         }
 
         for object in &self.objects {
