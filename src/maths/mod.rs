@@ -6,6 +6,8 @@ pub type Perspective = nalgebra::Perspective3<Scalar>;
 
 pub type Point = nalgebra::Point3<Scalar>;
 
+pub type Plane = ncollide3d::shape::Plane<Scalar>;
+
 pub type Ray = ncollide3d::query::Ray<Scalar>;
 
 pub type Scalar = f32;

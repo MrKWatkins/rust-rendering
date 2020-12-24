@@ -1,5 +1,4 @@
-use crate::maths::Sphere;
-use crate::scene::io::json::{JsonMaterial, JsonPoint, JsonScalar};
+use crate::scene::io::json::{JsonMaterial, JsonPoint, JsonScalar, JsonVector};
 use crate::scene::Object;
 use serde::Deserialize;
 
@@ -17,14 +16,17 @@ pub struct JsonObject {
 #[serde(rename_all = "lowercase")]
 pub enum JsonShape {
     Sphere { radius: JsonScalar },
+    Plane { normal: JsonVector },
 }
 
 impl JsonObject {
     pub fn to_object(&self) -> Object {
-        let shape = match self.shape {
-            JsonShape::Sphere { radius } => Sphere::new(radius),
-        };
+        let position = self.position.to_point();
+        let material = self.material.to_material();
 
-        return Object::new(shape, self.position.to_point(), self.material.to_material());
+        return match &self.shape {
+            JsonShape::Sphere { radius } => Object::new_sphere(position, *radius, material),
+            JsonShape::Plane { normal } => Object::new_plane(position, normal.to_vector(), material),
+        };
     }
 }
