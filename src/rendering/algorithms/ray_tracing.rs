@@ -4,6 +4,7 @@ use crate::rendering::algorithms::Algorithm;
 use crate::scene::{Object, Scene};
 use nalgebra::Matrix;
 use ncollide3d::query::RayCast;
+use std::ptr;
 
 type RayIntersection = ncollide3d::query::RayIntersection<Scalar>;
 
@@ -41,9 +42,29 @@ fn calculate_colour(scene: &Scene, object: &Object, ray: &Ray, intersection: &Ra
     let mut colour = &object.material.colour * &scene.ambient_light;
 
     let point_of_intersection = ray.origin + ray.dir * intersection.toi;
-    for light in &scene.lights {
-        let light_ray = Ray::new(light.position, Matrix::normalize(&(point_of_intersection - &light.position)));
 
+    'lights: for light in &scene.lights {
+        // Trace a ray from the light to the point_of_intersection.
+        let light_ray = Ray::new(light.position, Matrix::normalize(&(point_of_intersection - &light.position)));
+        let light_distance = object.shape.toi_with_ray(&object.transformation, &light_ray, Scalar::MAX, false);
+        if light_distance.is_none() {
+            // This could happen if the intersection is right on the edge for floating point reasons.
+            continue;
+        }
+
+        // See if there is another object closer; if so it will be blocking the light ray.
+        for other_object in &scene.objects {
+            if ptr::eq(object, other_object) {
+                continue;
+            }
+            if let Some(object_distance) = other_object.shape.toi_with_ray(&other_object.transformation, &light_ray, Scalar::MAX, false) {
+                if object_distance < light_distance.unwrap() {
+                    continue 'lights;
+                }
+            }
+        }
+
+        // Nothing blocking, add the colour contribution for the light.
         let lambertian = -light_ray.dir.dot(&intersection.normal) * &object.material.colour * &light.colour;
 
         colour = colour + lambertian.clamp();
