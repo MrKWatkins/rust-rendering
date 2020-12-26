@@ -10,6 +10,8 @@ edition = "2018"
 image = "*"
 nalgebra = "*"
 ncollide3d = "*"
+parking_lot = "*"
+rayon = "*"
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"
 snafu = "*"

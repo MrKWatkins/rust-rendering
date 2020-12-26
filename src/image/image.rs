@@ -1,5 +1,6 @@
 use crate::image::{Colour, RgbImage};
 
+#[derive(Clone)]
 pub struct Image {
     pub width: u32,
     pub height: u32,
@@ -29,5 +30,9 @@ impl Image {
 
     pub fn set_pixel(&mut self, x: u32, y: u32, colour: Colour) {
         self.pixels[(x + y * self.width) as usize] = colour;
+    }
+
+    pub fn get_pixel(&self, x: u32, y: u32) -> Colour {
+        return self.pixels[(x + y * self.width) as usize];
     }
 }

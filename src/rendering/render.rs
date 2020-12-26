@@ -4,18 +4,23 @@ use crate::maths::Coordinates;
 use crate::rendering::algorithms::Algorithm;
 use crate::rendering::{RasterSpace, SubPixelSampling};
 use crate::scene::Scene;
+use parking_lot::Mutex;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::sync::Arc;
 
-pub fn render<TAlgorithm: Algorithm>(algorithm: &TAlgorithm, configuration: &Configuration, scene: &Scene, sampling: SubPixelSampling) -> Image {
-    let mut image = Image::new(configuration.width, configuration.height);
+pub fn render<TAlgorithm: Algorithm + Sync>(algorithm: &TAlgorithm, configuration: &Configuration, scene: &Scene, sampling: SubPixelSampling) -> Image {
+    let image = Arc::new(Mutex::new(Image::new(configuration.width, configuration.height)));
 
     let raster_space = RasterSpace::new(configuration.width, configuration.height);
 
     let sampling_offsets = sampling.pixel_offsets();
 
-    let mut samples: Vec<Colour> = sampling_offsets.iter().map(|_| Colour::black()).collect();
+    (0..configuration.width * configuration.height).into_par_iter().for_each_init(
+        || sampling_offsets.iter().map(|_| Colour::black()).collect::<Vec<Colour>>(),
+        |samples, pixel| {
+            let y = pixel / configuration.width;
+            let x = pixel - y * configuration.width;
 
-    for x in 0..configuration.width {
-        for y in 0..configuration.height {
             for sample in 0..sampling_offsets.len() {
                 let offset = &sampling_offsets[sample];
 
@@ -25,9 +30,9 @@ pub fn render<TAlgorithm: Algorithm>(algorithm: &TAlgorithm, configuration: &Con
 
                 samples[sample] = algorithm.render_point(scene, &screen_space_coords);
             }
-            image.set_pixel(x, y, Colour::average(&samples));
-        }
-    }
+            image.lock().set_pixel(x, y, Colour::average(&samples));
+        },
+    );
 
-    return image;
+    return image.lock().clone();
 }

@@ -3,7 +3,7 @@ use crate::maths::Scalar;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct Colour {
     pub r: Scalar,
     pub g: Scalar,
