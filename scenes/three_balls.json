@@ -8,7 +8,7 @@
   },
   "lights": [
     {
-      "position": [0.0, 3.0, 1.0],
+      "position": [5.0, 5.0, 1.0],
       "colour": [1.0, 1.0, 1.0]
     }
   ],
@@ -20,7 +20,9 @@
       "position": [-1.5, 0.0, 5.0],
       "texture": {
         "solid": {
-          "ambient_colour": [1.0, 0.0, 0.0]
+          "ambient_colour": [1.0, 0.0, 0.0],
+          "specular_colour": [1.0, 1.0, 1.0],
+          "shininess": 100
         }
       }
 	},
@@ -31,7 +33,9 @@
       "position": [0.0, 0.0, 5.0],
       "texture": {
         "solid": {
-          "ambient_colour": [0.0, 1.0, 0.0]
+          "ambient_colour": [0.0, 1.0, 0.0],
+          "specular_colour": [1.0, 1.0, 1.0],
+          "shininess": 100
         }
       }
     },
@@ -42,7 +46,9 @@
       "position": [1.5, 0.0, 5.0],
       "texture": {
         "solid": {
-          "ambient_colour": [0.0, 0.0, 1.0]
+          "ambient_colour": [0.0, 0.0, 1.0],
+          "specular_colour": [1.0, 1.0, 1.0],
+          "shininess": 100
         }
       }
     },

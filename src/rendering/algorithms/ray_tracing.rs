@@ -1,7 +1,8 @@
 use crate::image::Colour;
-use crate::maths::Coordinates;
+use crate::maths::{reflect, Coordinates};
 use crate::rendering::algorithms::Algorithm;
 use crate::scene::{RayCollision, Scene};
+use nalgebra::Unit;
 use std::ptr;
 
 pub struct RayTracing {
@@ -31,26 +32,42 @@ fn render_point(scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour
 }
 
 fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
-    let material_at_intersection = collision.object.texture.material_at_point(&collision.intersection);
+    let material = collision.object.texture.material_at_point(&collision.intersection);
 
-    let mut colour = material_at_intersection.ambient_colour * &scene.ambient_light;
+    let mut colour = material.ambient_colour * &scene.ambient_light;
 
     for light in &scene.lights {
         // Get a ray from the light to the point_of_intersection.
         let light_ray = light.ray_to(&collision.intersection);
 
         // See if there is another object closer; if so it will be blocking the light ray.
+        // TODO: An object could block itself! Check the collision point is the same.
         if let Some(other) = scene.first_collision_with_ray(&light_ray) {
             if !ptr::eq(collision.object, other.object) {
                 continue;
             }
         }
 
-        // Nothing blocking, add the colour contribution for the light.
-        let lambertian = -light_ray.dir.dot(&collision.normal) * material_at_intersection.diffuse_colour * light.colour;
+        // Nothing blocking, however if light . normal is negative then the light must have hit the back of the surface
+        // so we can ignore it.
+        let light_dot_normal = -light_ray.dir.dot(&collision.normal);
+        if light_dot_normal <= 0.0 {
+            continue;
+        }
 
-        colour = colour + lambertian.clamp();
+        // Diffuse contribution.
+        colour = colour + light_dot_normal * material.diffuse_colour;
+
+        // Specular contribution.
+        if material.shininess > 0.0 {
+            let reflection = reflect(&light_ray.dir, &collision.normal);
+            let to_viewer = Unit::new_normalize(collision.intersection - scene.camera.position);
+            let r_dot_v = reflection.dot(&to_viewer);
+            if r_dot_v > 0.0 {
+                colour = colour + material.specular_colour * r_dot_v.powf(material.shininess);
+            }
+        }
     }
 
-    return colour;
+    return colour.clamp();
 }
