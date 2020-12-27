@@ -1,12 +1,8 @@
 use crate::image::Colour;
-use crate::maths::{Coordinates, Ray, Scalar};
+use crate::maths::{Coordinates, Ray, RayIntersection};
 use crate::rendering::algorithms::Algorithm;
 use crate::scene::{Object, Scene};
-use nalgebra::Matrix;
-use ncollide3d::query::RayCast;
 use std::ptr;
-
-type RayIntersection = ncollide3d::query::RayIntersection<Scalar>;
 
 pub struct RayTracing {
     _private: (),
@@ -19,20 +15,16 @@ impl RayTracing {
 }
 
 impl Algorithm for RayTracing {
-    fn render_point(&self, scene: &Scene, coordinates: &Coordinates) -> Colour {
-        return render_point(scene, coordinates);
+    fn render_point(&self, scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour {
+        return render_point(scene, camera_space_coordinates);
     }
 }
 
-fn render_point(scene: &Scene, coordinates: &Coordinates) -> Colour {
-    let eye = scene.camera.to_world_space(coordinates);
+fn render_point(scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour {
+    let ray = scene.camera.ray_to(camera_space_coordinates);
 
-    let ray = Ray::new(scene.camera.position, Matrix::normalize(&(eye - scene.camera.position)));
-
-    for object in &scene.objects {
-        if let Some(intersection) = object.shape.toi_and_normal_with_ray(&object.transformation, &ray, Scalar::MAX, true) {
-            return calculate_colour(scene, object, &ray, &intersection);
-        }
+    if let Some(collision) = scene.first_collision_with_ray(&ray) {
+        return calculate_colour(scene, collision.object, &ray, &collision.intersection);
     }
 
     return scene.background_colour.clone();
@@ -43,24 +35,14 @@ fn calculate_colour(scene: &Scene, object: &Object, ray: &Ray, intersection: &Ra
 
     let point_of_intersection = ray.origin + ray.dir * intersection.toi;
 
-    'lights: for light in &scene.lights {
-        // Trace a ray from the light to the point_of_intersection.
-        let light_ray = Ray::new(light.position, Matrix::normalize(&(point_of_intersection - &light.position)));
-        let light_distance = object.shape.toi_with_ray(&object.transformation, &light_ray, Scalar::MAX, false);
-        if light_distance.is_none() {
-            // This could happen if the intersection is right on the edge for floating point reasons.
-            continue;
-        }
+    for light in &scene.lights {
+        // Get a ray from the light to the point_of_intersection.
+        let light_ray = light.ray_to(&point_of_intersection);
 
         // See if there is another object closer; if so it will be blocking the light ray.
-        for other_object in &scene.objects {
-            if ptr::eq(object, other_object) {
+        if let Some(other) = scene.first_collision_with_ray(&light_ray) {
+            if !ptr::eq(object, other.object) {
                 continue;
-            }
-            if let Some(object_distance) = other_object.shape.toi_with_ray(&other_object.transformation, &light_ray, Scalar::MAX, false) {
-                if object_distance < light_distance.unwrap() {
-                    continue 'lights;
-                }
             }
         }
 

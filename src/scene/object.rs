@@ -1,10 +1,11 @@
 use crate::material::Material;
 use crate::maths::{Isometry, Plane, Point, Scalar, Sphere, Vector};
 use nalgebra::Unit;
-use ncollide3d::shape::Shape;
+use ncollide3d::bounding_volume::AABB;
+use ncollide3d::shape::{Shape, ShapeHandle};
 
 pub struct Object {
-    pub shape: Box<dyn Shape<Scalar>>,
+    pub shape: ShapeHandle<Scalar>,
 
     pub position: Point,
 
@@ -18,12 +19,16 @@ pub struct Object {
 impl Object {
     pub fn new<T: Shape<Scalar>>(shape: T, position: Point, material: Material) -> Object {
         Object {
-            shape: Box::new(shape),
+            shape: ShapeHandle::new(shape),
             position,
             material,
             transformation: Isometry::translation(position.x, position.y, position.z),
             _private: (),
         }
+    }
+
+    pub fn bounding_volume(&self) -> AABB<f32> {
+        return self.shape.aabb(&self.transformation);
     }
 
     pub fn new_sphere(centre: Point, radius: Scalar, material: Material) -> Object {

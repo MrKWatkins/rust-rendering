@@ -9,5 +9,5 @@ use crate::maths::Coordinates;
 use crate::scene::Scene;
 
 pub trait Algorithm {
-    fn render_point(&self, scene: &Scene, coordinates: &Coordinates) -> Colour;
+    fn render_point(&self, scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour;
 }

@@ -17,9 +17,9 @@ impl Gradient {
 }
 
 impl Algorithm for Gradient {
-    fn render_point(&self, _: &Scene, coordinates: &Coordinates) -> Colour {
-        let adjusted_x = coordinates.x + 0.5;
-        let adjusted_y = coordinates.y + 0.5;
+    fn render_point(&self, _: &Scene, camera_space_coordinates: &Coordinates) -> Colour {
+        let adjusted_x = camera_space_coordinates.x + 0.5;
+        let adjusted_y = camera_space_coordinates.y + 0.5;
         let scale = adjusted_x * adjusted_y;
 
         return Colour::new(

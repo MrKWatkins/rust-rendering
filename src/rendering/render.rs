@@ -28,7 +28,7 @@ pub fn render<TAlgorithm: Algorithm + Sync>(algorithm: &TAlgorithm, configuratio
 
                 let screen_space_coords = raster_space.to_screen_space(raster_coords);
 
-                samples[sample] = algorithm.render_point(scene, &screen_space_coords);
+                samples[sample] = algorithm.render_point(&scene, &screen_space_coords);
             }
             image.lock().set_pixel(x, y, Colour::average(&samples));
         },

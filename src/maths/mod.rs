@@ -10,6 +10,8 @@ pub type Plane = ncollide3d::shape::Plane<Scalar>;
 
 pub type Ray = ncollide3d::query::Ray<Scalar>;
 
+pub type RayIntersection = ncollide3d::query::RayIntersection<Scalar>;
+
 pub type Scalar = f32;
 
 pub type Sphere = ncollide3d::shape::Ball<Scalar>;

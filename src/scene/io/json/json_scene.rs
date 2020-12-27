@@ -40,13 +40,9 @@ impl JsonScene {
             scene.camera = camera.to_camera();
         }
 
-        for light in &self.lights {
-            scene.add_light(light.to_light());
-        }
+        scene.add_lights(self.lights.iter().map(|light| light.to_light()));
 
-        for object in &self.objects {
-            scene.add_object(object.to_object());
-        }
+        scene.add_objects(self.objects.iter().map(|object| object.to_object()));
 
         return scene;
     }

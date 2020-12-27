@@ -1,5 +1,5 @@
 use crate::maths::*;
-use nalgebra::Point4;
+use nalgebra::{Matrix, Point4};
 
 pub struct Camera {
     pub position: Point,
@@ -20,6 +20,12 @@ impl Camera {
     pub fn to_world_space(&self, camera_space: &Coordinates) -> Point {
         let homogeneous = self.camera_to_world * Point4::new(camera_space.x, camera_space.y, -1.0, 1.0);
         return Point::from_homogeneous(homogeneous.coords).unwrap();
+    }
+
+    pub fn ray_to(&self, camera_space_coordinates: &Coordinates) -> Ray {
+        let eye = self.to_world_space(camera_space_coordinates);
+
+        return Ray::new(self.position, Matrix::normalize(&(eye - self.position)));
     }
 }
 
