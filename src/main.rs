@@ -7,7 +7,6 @@ use std::time::Instant;
 // Some modules declared as pub to suppress dead code warnings.
 mod configuration;
 pub mod image;
-pub mod material;
 pub mod maths;
 pub mod rendering;
 pub mod scene;

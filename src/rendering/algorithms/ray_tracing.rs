@@ -31,9 +31,9 @@ fn render_point(scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour
 }
 
 fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
-    let colour_at_intersection = collision.object.material.texture.colour_at(&collision.intersection);
+    let material_at_intersection = collision.object.texture.material_at_point(&collision.intersection);
 
-    let mut colour = colour_at_intersection * &scene.ambient_light;
+    let mut colour = material_at_intersection.ambient_colour * &scene.ambient_light;
 
     for light in &scene.lights {
         // Get a ray from the light to the point_of_intersection.
@@ -47,7 +47,7 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
         }
 
         // Nothing blocking, add the colour contribution for the light.
-        let lambertian = -light_ray.dir.dot(&collision.normal) * colour_at_intersection * light.colour;
+        let lambertian = -light_ray.dir.dot(&collision.normal) * material_at_intersection.diffuse_colour * light.colour;
 
         colour = colour + lambertian.clamp();
     }

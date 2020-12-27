@@ -1,4 +1,4 @@
-use crate::scene::io::json::{JsonMaterial, JsonPoint, JsonScalar, JsonVector};
+use crate::scene::io::json::{JsonPoint, JsonScalar, JsonTexture, JsonVector};
 use crate::scene::Object;
 use serde::Deserialize;
 
@@ -6,7 +6,7 @@ use serde::Deserialize;
 pub struct JsonObject {
     pub position: JsonPoint,
 
-    pub material: JsonMaterial,
+    pub texture: JsonTexture,
 
     #[serde(flatten)]
     pub shape: JsonShape,
@@ -22,11 +22,11 @@ pub enum JsonShape {
 impl JsonObject {
     pub fn to_object(&self) -> Object {
         let position = self.position.to_point();
-        let material = self.material.to_material();
+        let texture = self.texture.to_texture();
 
         return match &self.shape {
-            JsonShape::Sphere { radius } => Object::new_sphere(position, *radius, material),
-            JsonShape::Plane { normal } => Object::new_plane(position, normal.to_vector(), material),
+            JsonShape::Sphere { radius } => Object::new_sphere(position, *radius, texture),
+            JsonShape::Plane { normal } => Object::new_plane(position, normal.to_vector(), texture),
         };
     }
 }

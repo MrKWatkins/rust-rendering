@@ -1,41 +1,22 @@
-use crate::material::{Material, Texture};
 use crate::scene::io::json::{JsonColour, JsonScalar};
+use crate::scene::Material;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct JsonMaterial {
-    #[serde(flatten)]
-    pub texture: JsonTexture,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum JsonTexture {
-    Solid {
-        colour: JsonColour,
-    },
-    Chequerboard {
-        colour1: JsonColour,
-        colour2: JsonColour,
-        size: JsonScalar,
-    },
+    pub ambient_colour: JsonColour,
+    pub diffuse_colour: Option<JsonColour>,
+    pub specular_colour: Option<JsonColour>,
+    pub shininess: Option<JsonScalar>,
 }
 
 impl JsonMaterial {
     pub fn to_material(&self) -> Material {
-        return Material::new(self.texture.to_texture());
-    }
-}
-
-impl JsonTexture {
-    pub fn to_texture(&self) -> Texture {
-        return match &self {
-            JsonTexture::Solid { colour } => Texture::Solid { colour: colour.to_colour() },
-            JsonTexture::Chequerboard { colour1, colour2, size } => Texture::Chequerboard {
-                colour1: colour1.to_colour(),
-                colour2: colour2.to_colour(),
-                size: *size,
-            },
+        return Material {
+            ambient_colour: self.ambient_colour.to_colour(),
+            diffuse_colour: self.diffuse_colour.unwrap_or(self.ambient_colour).to_colour(),
+            specular_colour: self.specular_colour.unwrap_or(self.ambient_colour).to_colour(),
+            shininess: self.shininess.unwrap_or(0.0),
         };
     }
 }

@@ -19,6 +19,9 @@ pub use self::json_point::*;
 mod json_scene;
 pub use self::json_scene::*;
 
+mod json_texture;
+pub use self::json_texture::*;
+
 mod json_vector;
 pub use self::json_vector::*;
 

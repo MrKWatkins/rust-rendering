@@ -1,7 +1,6 @@
-use crate::material::Material;
 use crate::maths::{Isometry, Plane, Point, Scalar, Sphere, Vector};
+use crate::scene::Texture;
 use nalgebra::Unit;
-use ncollide3d::bounding_volume::AABB;
 use ncollide3d::shape::{Shape, ShapeHandle};
 
 pub struct Object {
@@ -9,7 +8,7 @@ pub struct Object {
 
     pub position: Point,
 
-    pub material: Material,
+    pub texture: Texture,
 
     pub transformation: Isometry,
 
@@ -17,25 +16,21 @@ pub struct Object {
 }
 
 impl Object {
-    pub fn new<T: Shape<Scalar>>(shape: T, position: Point, material: Material) -> Object {
+    pub fn new<T: Shape<Scalar>>(shape: T, position: Point, texture: Texture) -> Object {
         Object {
             shape: ShapeHandle::new(shape),
             position,
-            material,
+            texture,
             transformation: Isometry::translation(position.x, position.y, position.z),
             _private: (),
         }
     }
 
-    pub fn bounding_volume(&self) -> AABB<f32> {
-        return self.shape.aabb(&self.transformation);
+    pub fn new_sphere(centre: Point, radius: Scalar, texture: Texture) -> Object {
+        return Object::new(Sphere::new(radius), centre, texture);
     }
 
-    pub fn new_sphere(centre: Point, radius: Scalar, material: Material) -> Object {
-        return Object::new(Sphere::new(radius), centre, material);
-    }
-
-    pub fn new_plane(centre: Point, normal: Vector, material: Material) -> Object {
-        return Object::new(Plane::new(Unit::new_normalize(normal)), centre, material);
+    pub fn new_plane(centre: Point, normal: Vector, texture: Texture) -> Object {
+        return Object::new(Plane::new(Unit::new_normalize(normal)), centre, texture);
     }
 }

@@ -2,7 +2,7 @@ use crate::image::Colour;
 use crate::scene::io::json::JsonScalar;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Copy, Clone)]
 pub struct JsonColour(JsonScalar, JsonScalar, JsonScalar);
 
 impl JsonColour {
