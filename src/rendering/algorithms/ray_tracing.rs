@@ -1,7 +1,7 @@
 use crate::image::Colour;
-use crate::maths::{Coordinates, Ray, RayIntersection};
+use crate::maths::Coordinates;
 use crate::rendering::algorithms::Algorithm;
-use crate::scene::{Object, Scene};
+use crate::scene::{RayCollision, Scene};
 use std::ptr;
 
 pub struct RayTracing {
@@ -24,30 +24,30 @@ fn render_point(scene: &Scene, camera_space_coordinates: &Coordinates) -> Colour
     let ray = scene.camera.ray_to(camera_space_coordinates);
 
     if let Some(collision) = scene.first_collision_with_ray(&ray) {
-        return calculate_colour(scene, collision.object, &ray, &collision.intersection);
+        return calculate_colour(scene, &collision);
     }
 
     return scene.background_colour.clone();
 }
 
-fn calculate_colour(scene: &Scene, object: &Object, ray: &Ray, intersection: &RayIntersection) -> Colour {
-    let mut colour = &object.material.colour * &scene.ambient_light;
+fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
+    let colour_at_intersection = collision.object.material.texture.colour_at(&collision.intersection);
 
-    let point_of_intersection = ray.origin + ray.dir * intersection.toi;
+    let mut colour = colour_at_intersection * &scene.ambient_light;
 
     for light in &scene.lights {
         // Get a ray from the light to the point_of_intersection.
-        let light_ray = light.ray_to(&point_of_intersection);
+        let light_ray = light.ray_to(&collision.intersection);
 
         // See if there is another object closer; if so it will be blocking the light ray.
         if let Some(other) = scene.first_collision_with_ray(&light_ray) {
-            if !ptr::eq(object, other.object) {
+            if !ptr::eq(collision.object, other.object) {
                 continue;
             }
         }
 
         // Nothing blocking, add the colour contribution for the light.
-        let lambertian = -light_ray.dir.dot(&intersection.normal) * &object.material.colour * &light.colour;
+        let lambertian = -light_ray.dir.dot(&collision.normal) * colour_at_intersection * light.colour;
 
         colour = colour + lambertian.clamp();
     }

@@ -1,5 +1,5 @@
 use crate::image::Colour;
-use crate::maths::{Ray, RayIntersection, Scalar};
+use crate::maths::{Point, Ray, Scalar, Vector};
 use crate::scene::{Camera, Light, Object};
 use ncollide3d::pipeline::{CollisionGroups, GeometricQueryType};
 use ncollide3d::world::CollisionWorld;
@@ -16,8 +16,10 @@ pub struct Scene {
 
 pub struct RayCollision<'a> {
     pub ray: &'a Ray,
-    pub intersection: RayIntersection,
+    pub intersection: Point,
+    pub normal: Vector,
     pub object: &'a Object,
+    _private: (),
 }
 
 impl Scene {
@@ -59,8 +61,10 @@ impl Scene {
         return match self.world.first_interference_with_ray(&ray, std::f32::MAX, &self.groups) {
             Some(interference) => Some(RayCollision {
                 ray,
-                intersection: interference.inter,
+                intersection: ray.origin + ray.dir * interference.inter.toi,
+                normal: interference.inter.normal,
                 object: interference.co.data(),
+                _private: (),
             }),
             None => None,
         };

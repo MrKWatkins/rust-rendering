@@ -1,12 +1,5 @@
-use crate::image::Colour;
+mod material;
+pub use self::material::*;
 
-pub struct Material {
-    pub colour: Colour,
-    _private: (),
-}
-
-impl Material {
-    pub fn matte(colour: Colour) -> Material {
-        return Material { colour, _private: () };
-    }
-}
+mod texture;
+pub use self::texture::*;

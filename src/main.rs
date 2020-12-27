@@ -19,7 +19,7 @@ fn main() {
     println!("Output file: {:?}", configuration.output);
     println!("Image size: {}x{}", configuration.width, configuration.height);
 
-    let scene = match load(&configuration.scene) {
+    let scene = match time_function("load scene", || load(&configuration.scene)) {
         Ok(t) => t,
         Err(e) => {
             println!("Could not load scene{:?}: {}", configuration.scene, e.to_string());
