@@ -9,7 +9,10 @@
   "lights": [
     {
       "position": [5.0, 5.0, 1.0],
-      "colour": [1.0, 1.0, 1.0]
+      "colour": [1.0, 1.0, 1.0],
+      "spherical": {
+        "radius": 0.25
+      }
     }
   ],
   "objects": [
@@ -22,7 +25,7 @@
         "solid": {
           "ambient_colour": [1.0, 0.0, 0.0],
           "specular_colour": [1.0, 1.0, 1.0],
-          "shininess": 100
+          "shininess": 500
         }
       }
 	},

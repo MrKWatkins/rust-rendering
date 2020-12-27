@@ -1,5 +1,5 @@
 use crate::image::Colour;
-use crate::maths::{reflect, Point, Ray, Scalar, Vector};
+use crate::maths::{vector, Point, Ray, Scalar, Vector};
 use crate::scene::{Camera, Light, Object};
 use nalgebra::Unit;
 use ncollide3d::pipeline::{CollisionGroups, GeometricQueryType};
@@ -84,7 +84,7 @@ impl RayCollision<'_> {
     }
 
     pub fn reflection_ray(&self) -> Ray {
-        return Ray::new(self.intersection, reflect(&self.ray.dir, &self.normal));
+        return Ray::new(self.intersection, vector::reflect(&self.ray.dir, &self.normal));
     }
 }
 

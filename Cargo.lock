@@ -675,6 +675,7 @@ dependencies = [
  "nalgebra",
  "ncollide3d",
  "parking_lot",
+ "rand",
  "rayon",
  "rstest",
  "serde",

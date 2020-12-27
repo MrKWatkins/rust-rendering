@@ -1,5 +1,5 @@
 use crate::image::Colour;
-use crate::maths::{reflect, Coordinates};
+use crate::maths::{vector, Coordinates};
 use crate::rendering::algorithms::Algorithm;
 use crate::scene::{RayCollision, Scene};
 use nalgebra::Unit;
@@ -37,34 +37,35 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
     let mut colour = material.ambient_colour * &scene.ambient_light;
 
     for light in &scene.lights {
-        // Get a ray from the light to the point_of_intersection.
-        let light_ray = light.ray_to(&collision.intersection);
+        // Sample rays a ray from the light to the point_of_intersection.
+        for light_ray in light.sample_rays_to(&collision.intersection) {
+            // See if there is another object closer; if so it will be blocking the light ray.
+            // TODO: An object could block itself! Check the collision point is the same.
+            if let Some(other) = scene.first_collision_with_ray(&light_ray) {
+                if !ptr::eq(collision.object, other.object) {
+                    continue;
+                }
+            }
 
-        // See if there is another object closer; if so it will be blocking the light ray.
-        // TODO: An object could block itself! Check the collision point is the same.
-        if let Some(other) = scene.first_collision_with_ray(&light_ray) {
-            if !ptr::eq(collision.object, other.object) {
+            // Nothing blocking, however if light . normal is negative then the light must have hit the back of the surface
+            // so we can ignore it.
+            let light_dot_normal = -light_ray.dir.dot(&collision.normal);
+            if light_dot_normal <= 0.0 {
                 continue;
             }
-        }
 
-        // Nothing blocking, however if light . normal is negative then the light must have hit the back of the surface
-        // so we can ignore it.
-        let light_dot_normal = -light_ray.dir.dot(&collision.normal);
-        if light_dot_normal <= 0.0 {
-            continue;
-        }
+            // Diffuse contribution.
+            colour = colour + light_dot_normal * material.diffuse_colour * light.colour * light.sample_factor;
 
-        // Diffuse contribution.
-        colour = colour + light_dot_normal * material.diffuse_colour;
-
-        // Specular contribution.
-        if material.shininess > 0.0 {
-            let reflection = reflect(&light_ray.dir, &collision.normal);
-            let to_viewer = Unit::new_normalize(collision.intersection - scene.camera.position);
-            let r_dot_v = reflection.dot(&to_viewer);
-            if r_dot_v > 0.0 {
-                colour = colour + material.specular_colour * r_dot_v.powf(material.shininess);
+            // Specular contribution.
+            if material.shininess > 0.0 {
+                let reflection = vector::reflect(&light_ray.dir, &collision.normal);
+                let to_viewer = Unit::new_normalize(collision.intersection - scene.camera.position);
+                let r_dot_v = reflection.dot(&to_viewer);
+                if r_dot_v > 0.0 {
+                    // light.colour and sample_factor already factored in above. Not bothering with separate diffuse/specular colours for a light.
+                    colour = colour + material.specular_colour * r_dot_v.powf(material.shininess);
+                }
             }
         }
     }
