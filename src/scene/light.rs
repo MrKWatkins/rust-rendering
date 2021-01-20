@@ -3,8 +3,6 @@ use crate::maths::ray;
 use crate::maths::{sphere, Isometry, Point, Ray, Scalar};
 use std::iter::once;
 
-// TODO: Config.
-// TODO: Cached uniform/random.
 // TODO: Hemisphere only.
 
 pub struct Light {

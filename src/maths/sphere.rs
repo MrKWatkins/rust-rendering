@@ -60,12 +60,12 @@ impl Iterator for UniformSurfacePointIterator {
             return None;
         }
 
-        let latitude = (self.point as Scalar * self.multiplier - 1.0).asin();
-        let longitude = consts::GOLDEN_ANGLE * self.point as Scalar;
+        let theta = consts::GOLDEN_ANGLE * self.point as Scalar;
+        let phi = (1.0 - self.point as Scalar * self.multiplier).acos();
 
         self.point += 1;
 
-        return Some(point_from_latitude_and_longitude(self.radius, latitude, longitude));
+        return Some(point_from_spherical_coords(self.radius, theta, phi));
     }
 }
 
@@ -73,7 +73,7 @@ impl Iterator for UniformSurfacePointIterator {
 pub fn uniform_surface_points(radius: Scalar, number_of_points: usize) -> UniformSurfacePointIterator {
     return UniformSurfacePointIterator {
         radius,
-        multiplier: 2.0 / (number_of_points + 1) as Scalar,
+        multiplier: 2.0 / number_of_points as Scalar,
         number_of_points,
         point: 1,
     };
