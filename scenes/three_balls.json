@@ -10,9 +10,13 @@
     {
       "position": [5.0, 5.0, 1.0],
       "colour": [1.0, 1.0, 1.0],
+      "attenuation": {
+        "type": "inverse squared",
+        "half_intensity_distance": 3.5
+      },
       "spherical": {
         "radius": 0.25,
-        "sampling": "uniform",
+        "sampling": "random",
         "samples": 10
       }
     }

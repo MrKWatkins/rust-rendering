@@ -1,14 +1,16 @@
 use crate::image::Colour;
 use crate::maths::ray;
 use crate::maths::{sphere, Isometry, Point, Ray, Scalar};
+use crate::scene::Attenuation;
 use std::iter::once;
 
-// TODO: Hemisphere only.
+// TODO: Sample on the facing hemisphere only.
 
 pub struct Light {
     pub position: Point,
     pub colour: Colour,
     pub shape: LightShape,
+    pub attenuation: Attenuation,
     pub sample_factor: Scalar,
     transformation: Isometry,
     cached_samples: Option<Vec<Point>>,
@@ -29,21 +31,29 @@ pub enum LightSampling {
 }
 
 impl Light {
-    pub fn point(position: Point, colour: Colour) -> Light {
-        return Light::new(position, colour, LightShape::Point, 1, true);
+    pub fn point(position: Point, colour: Colour, attenuation: Attenuation) -> Light {
+        return Light::new(position, colour, LightShape::Point, attenuation, 1, true);
     }
 
-    pub fn spherical(position: Point, colour: Colour, radius: Scalar, sampling: LightSampling, sample_count: usize, cache_samples: bool) -> Light {
+    pub fn spherical(
+        position: Point,
+        colour: Colour,
+        radius: Scalar,
+        attenuation: Attenuation,
+        sampling: LightSampling,
+        sample_count: usize,
+        cache_samples: bool,
+    ) -> Light {
         let shape = LightShape::Sphere {
             radius,
             sampling,
             sample_count,
         };
 
-        return Light::new(position, colour, shape, sample_count, cache_samples);
+        return Light::new(position, colour, shape, attenuation, sample_count, cache_samples);
     }
 
-    fn new(position: Point, colour: Colour, shape: LightShape, sample_count: usize, cache_samples: bool) -> Light {
+    fn new(position: Point, colour: Colour, shape: LightShape, attenuation: Attenuation, sample_count: usize, cache_samples: bool) -> Light {
         let transformation = Isometry::translation(position.x, position.y, position.z);
 
         let cached_samples = match cache_samples {
@@ -55,6 +65,7 @@ impl Light {
             position,
             colour,
             shape,
+            attenuation,
             sample_factor: 1.0 / sample_count as Scalar,
             transformation,
             cached_samples,

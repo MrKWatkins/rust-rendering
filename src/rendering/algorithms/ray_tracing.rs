@@ -2,8 +2,10 @@ use crate::image::Colour;
 use crate::maths::{vector, Coordinates, Scalar};
 use crate::rendering::algorithms::Algorithm;
 use crate::scene::{RayCollision, Scene};
-use nalgebra::Unit;
+use nalgebra::{distance, Unit};
 use std::ptr;
+
+const MINIMUM_INTENSITY: Scalar = 1.0 / 256.0;
 
 pub struct RayTracing {
     _private: (),
@@ -39,6 +41,12 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
     for light in &scene.lights {
         // Sample rays a ray from the light to the point_of_intersection.
         for light_ray in light.sample_rays_to(&collision.intersection) {
+            // This could be approximated and done once per light using the position of the light.
+            let intensity = light.attenuation.get_intensity(distance(&light_ray.origin, &collision.intersection));
+            if intensity < MINIMUM_INTENSITY {
+                continue;
+            }
+
             // See if there is another object closer; if so it will be blocking the light ray.
             // TODO: An object could block itself! Check the collision point is the same.
             if let Some(other) = scene.first_collision_with_ray(&light_ray) {
@@ -55,7 +63,7 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
             }
 
             // Diffuse contribution.
-            colour = colour + light_dot_normal * material.diffuse_colour * light.colour * light.sample_factor;
+            colour = colour + light_dot_normal * material.diffuse_colour * light.colour * light.sample_factor * intensity;
 
             // Specular contribution.
             if material.shininess > 0.0 {
@@ -64,7 +72,7 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
                 let r_dot_v = reflection.dot(&to_viewer);
                 if r_dot_v > 0.0 {
                     // light.colour and sample_factor already factored in above. Not bothering with separate diffuse/specular colours for a light.
-                    colour = colour + material.specular_colour * r_dot_v.powf(material.shininess) * light.sample_factor;
+                    colour = colour + material.specular_colour * r_dot_v.powf(material.shininess) * light.sample_factor * intensity;
                 }
             }
         }

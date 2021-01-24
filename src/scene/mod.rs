@@ -1,3 +1,6 @@
+mod attenuation;
+pub use self::attenuation::Attenuation;
+
 mod camera;
 pub use self::camera::Camera;
 
