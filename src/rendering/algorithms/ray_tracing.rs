@@ -1,5 +1,5 @@
 use crate::image::Colour;
-use crate::maths::{vector, Coordinates};
+use crate::maths::{vector, Coordinates, Scalar};
 use crate::rendering::algorithms::Algorithm;
 use crate::scene::{RayCollision, Scene};
 use nalgebra::Unit;
@@ -64,7 +64,7 @@ fn calculate_colour(scene: &Scene, collision: &RayCollision) -> Colour {
                 let r_dot_v = reflection.dot(&to_viewer);
                 if r_dot_v > 0.0 {
                     // light.colour and sample_factor already factored in above. Not bothering with separate diffuse/specular colours for a light.
-                    colour = colour + material.specular_colour * r_dot_v.powf(material.shininess);
+                    colour = colour + material.specular_colour * r_dot_v.powf(material.shininess) * light.sample_factor;
                 }
             }
         }
