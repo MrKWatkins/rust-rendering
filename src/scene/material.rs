@@ -6,6 +6,7 @@ pub struct Material {
     pub diffuse_colour: Colour,
     pub specular_colour: Colour,
     pub shininess: Scalar,
+    pub reflectivity: Scalar,
 }
 
 impl Material {
@@ -15,6 +16,7 @@ impl Material {
             diffuse_colour: colour,
             specular_colour: colour,
             shininess: 0.0,
+            reflectivity: 0.0,
         };
     }
 }

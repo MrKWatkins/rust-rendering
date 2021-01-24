@@ -26,12 +26,13 @@
       "sphere": {
         "radius": 0.5
       },
-      "position": [-1.5, 0.0, 5.0],
+      "position": [1.5, 0.0, 5.0],
       "texture": {
         "solid": {
           "ambient_colour": [1.0, 0.0, 0.0],
           "specular_colour": [1.0, 1.0, 1.0],
-          "shininess": 500
+          "shininess": 100,
+          "reflectivity": 0.9
         }
       }
 	},
@@ -44,7 +45,8 @@
         "solid": {
           "ambient_colour": [0.0, 1.0, 0.0],
           "specular_colour": [1.0, 1.0, 1.0],
-          "shininess": 100
+          "shininess": 100,
+          "reflectivity": 0.5
         }
       }
     },
@@ -52,12 +54,13 @@
       "sphere": {
         "radius": 0.5
       },
-      "position": [1.5, 0.0, 5.0],
+      "position": [-1.5, 0.0, 5.0],
       "texture": {
         "solid": {
           "ambient_colour": [0.0, 0.0, 1.0],
           "specular_colour": [1.0, 1.0, 1.0],
-          "shininess": 100
+          "shininess": 100,
+          "reflectivity": 0.1
         }
       }
     },

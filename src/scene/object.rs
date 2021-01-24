@@ -2,6 +2,7 @@ use crate::maths::{Isometry, Plane, Point, Scalar, Sphere, Vector};
 use crate::scene::Texture;
 use nalgebra::Unit;
 use ncollide3d::shape::{Shape, ShapeHandle};
+use std::ptr;
 
 pub struct Object {
     pub shape: ShapeHandle<Scalar>,
@@ -34,3 +35,11 @@ impl Object {
         return Object::new(Plane::new(Unit::new_normalize(normal)), centre, texture);
     }
 }
+
+impl PartialEq for Object {
+    fn eq(&self, other: &Object) -> bool {
+        return ptr::eq(self, other);
+    }
+}
+
+impl Eq for Object {}

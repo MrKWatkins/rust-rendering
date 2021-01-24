@@ -61,6 +61,24 @@ impl Scene {
             None => None,
         };
     }
+
+    pub fn first_collision_with_ray_excluding<'a>(&'a self, ray: &'a Ray, excluding: &'a Object) -> Option<RayCollision<'a>> {
+        let closest = self
+            .world
+            .interferences_with_ray(&ray, std::f32::MAX, &self.groups)
+            .filter(|interference| interference.1.data() != excluding)
+            .min_by(|x, y| x.2.toi.partial_cmp(&y.2.toi).unwrap());
+
+        return match closest {
+            Some(interference) => Some(RayCollision::new(
+                ray,
+                ray.point_at(interference.2.toi),
+                interference.2.normal,
+                interference.1.data(),
+            )),
+            None => None,
+        };
+    }
 }
 
 // TODO: Use laziness?
@@ -84,7 +102,7 @@ impl RayCollision<'_> {
     }
 
     pub fn reflection_ray(&self) -> Ray {
-        return Ray::new(self.intersection, vector::reflect(&self.ray.dir, &self.normal));
+        return Ray::new(self.intersection, -vector::reflect(&self.ray.dir, &self.normal));
     }
 }
 
@@ -100,8 +118,8 @@ mod tests {
         direction,
         normal,
         expected_reflected_direction,
-        case(Vector::x(), Matrix::normalize(&Vector::new(1.0, 1.0, 0.0)), Vector::y()),
-        case(Vector::z(), Matrix::normalize(&Vector::new(0.0, (45.0f32 / 2.0).to_radians().tan(), 1.0)), Matrix::normalize(&Vector::new(0.0, 1.0, 1.0)))
+        case(Vector::x(), Matrix::normalize(&Vector::new(1.0, 1.0, 0.0)), -Vector::y()),
+        case(Vector::z(), Matrix::normalize(&Vector::new(0.0, (45.0f32 / 2.0).to_radians().tan(), 1.0)), -Matrix::normalize(&Vector::new(0.0, 1.0, 1.0)))
     )]
     fn reflection_ray(direction: Vector, normal: Vector, expected_reflected_direction: Vector) {
         let ray = Ray::new(Point::origin(), direction);
